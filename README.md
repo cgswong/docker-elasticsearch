@@ -1,8 +1,8 @@
 docker-elasticsearch
 ====================
 
-Docker container for Elasticsearch. Logstash is the leading open source log management server. It is usually backed with Elasticsearch as the datastore, and Kibana is the frontend. This is the Elasticsearch Docker container in that architecture, or any other requiring Elasticsearch.
-
+Docker container for Elasticsearch. It is usually the back-end for a Logstash instance with Kibana as the frontend.
+This image exposes the HTTP interface on port 9200 and the cluster interface on port 9300. The data is stored in `/var/lib/elasticsearch` which is exposed as a volume.
 
 ## Running The Server
 
