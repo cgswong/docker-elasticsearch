@@ -22,14 +22,14 @@ RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo ap
 RUN echo "deb http://packages.elasticsearch.org/elasticsearch/$ELASTICSEARCH_VERSION/debian stable main" >> /etc/apt/sources.list
 RUN apt-get -y update && apt-get -y install elasticsearch
 
-# Create container volume for data storage
+# Expose persistent Elasticsearch configuration storage area
 VOLUME /var/lib/elasticsearch/
+
+# Listen for connections on HTTP port/interface: 9200
+EXPOSE 9200
+# Listen for cluster connections on port/interface: 9300
+EXPOSE 9300
 
 # Start container
 USER elasticsearch
 CMD source /etc/sysconfig/elasticsearch; /usr/share/elasticsearch/bin/elasticsearch -p /var/run/elasticsearch/elasticsearch.pid -Des.default.config=$CONF_FILE -Des.default.path.home=$ES_HOME -Des.default.path.logs=$LOG_DIR -Des.default.path.data=$DATA_DIR -Des.default.path.work=$WORK_DIR -Des.default.path.conf=$CONF_DIR
-
-# HTTP interface
-EXPOSE 9200
-# Cluster interface
-EXPOSE 9300
