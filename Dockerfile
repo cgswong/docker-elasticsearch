@@ -12,14 +12,13 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Elasticsearch
 ##ENV ELASTICSEARCH_VERSION 1.4.0.Beta1
-ENV ELASTICSEARCH_VERSION 1.3.4
+##ENV ELASTICSEARCH_VERSION 1.3.4
 ##ENV ELASTICSEARCH_VERSION 1.3
 ##WORKDIR /tmp
 ##RUN wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
 ##RUN dpkg -i elasticsearch-$ELASTICSEARCH_VERSION.deb
-
 RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
-RUN echo "deb http://packages.elasticsearch.org/elasticsearch/$ELASTICSEARCH_VERSION/debian stable main" >> /etc/apt/sources.list
+RUN echo "deb http://packages.elasticsearch.org/elasticsearch/${ELASTICSEARCH_VERSION}/debian stable main" >> /etc/apt/sources.list
 RUN apt-get -y update && apt-get -y install elasticsearch
 
 # Expose persistent Elasticsearch configuration storage area
