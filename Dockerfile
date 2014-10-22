@@ -22,7 +22,13 @@ RUN echo "deb http://packages.elasticsearch.org/elasticsearch/${ELASTICSEARCH_VE
 RUN apt-get -y update && apt-get -y install elasticsearch
 
 # Expose persistent Elasticsearch configuration storage area
-VOLUME /var/lib/elasticsearch/
+VOLUME ["/data"]
+
+# Mount elasticsearch.yml config
+COPY config/elasticsearch.yml /elasticsearch/config/elasticsearch.yml
+
+# Define working directory.
+WORKDIR /data
 
 # Listen for connections on HTTP port/interface: 9200
 EXPOSE 9200
