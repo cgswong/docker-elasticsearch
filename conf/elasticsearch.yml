@@ -1,5 +1,11 @@
 path:
-  data:     /opt/elasticsearch/data
+  data:     /opt/elasticsearch/data1,/opt/elasticsearch/data2
   logs:     /opt/elasticsearch/log
   plugins:  /opt/elasticsearch/plugins
   work:     /opt/elasticsearch/work
+  
+cluster:
+  name: $ES_CLUSTER_NAME
+
+node:
+  name: $ES_PORT_9200_TCP_ADDR
