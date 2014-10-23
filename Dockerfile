@@ -27,7 +27,7 @@ RUN mkdir -p ${ES_DIR_BASE}/{data1,data2,log,plugin,work,conf} && chown -R elast
 VOLUME ["${ES_DIR_BASE}"]
 
 # Mount elasticsearch.yml config
-COPY config/elasticsearch.yml ${ES_FILE_CONF}
+COPY confg/elasticsearch.yml ${ES_FILE_CONF}
 
 # Define working directory.
 WORKDIR ${ES_DIR_BASE}
