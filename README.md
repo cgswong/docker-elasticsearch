@@ -24,7 +24,7 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 #### Attach persistent/shared directories
 
-  1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/elasticsearch` is exposed as a volume within the container with data stored in `/opt/elasticsearch/data{1,2}`.
+  1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/elasticsearch` is exposed as a volume within the container with data stored in `/opt/elasticsearch/data`.
 
   2. Create ElasticSearch config file at `<data-dir>/conf/elasticsearch.yml`.
 
@@ -37,7 +37,7 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
   3. Start a container by mounting data directory and specifying the custom configuration file:
 
     ```sh
-    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/elasticsearch/data1 cgswong/elasticsearch /usr/share/elasticsearch/bin/elasticsearch -Des.config=/opt/elasticsearch/conf/elasticsearch.yml
+    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/elasticsearch/data cgswong/elasticsearch /usr/share/elasticsearch/bin/elasticsearch -Des.config=/opt/elasticsearch/conf/elasticsearch.yml
     ```
 
 After few seconds, open `http://<host>:9200` to see the result.

@@ -5,6 +5,7 @@
 # LOG:
 # yyyy/mm/dd [name] [version]: [notes]
 # 2014/10/15 cgwong [v0.1.0]: Initial creation.
+# 2014/11/07 cgwong v0.1.1: Changed plugin to plugins to match config file.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
@@ -23,7 +24,7 @@ RUN echo "deb http://packages.elasticsearch.org/elasticsearch/${ES_VERSION}/debi
 RUN apt-get -y update && apt-get -y install elasticsearch
 
 # Expose persistent Elasticsearch configuration storage area
-RUN mkdir -p ${ES_DIR_BASE}/{data1,data2,log,plugin,work,conf} && chown -R elasticsearch:elasticsearch ${ES_DIR_BASE}
+RUN mkdir -p ${ES_DIR_BASE}/{data,log,plugins,work,conf} && chown -R elasticsearch:elasticsearch ${ES_DIR_BASE}
 VOLUME ["${ES_DIR_BASE}"]
 
 # Mount elasticsearch.yml config

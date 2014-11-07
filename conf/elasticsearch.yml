@@ -1,9 +1,9 @@
 path:
-  data:     /opt/elasticsearch/data1,/opt/elasticsearch/data2
+  data:     /opt/elasticsearch/data
   logs:     /opt/elasticsearch/log
   plugins:  /opt/elasticsearch/plugins
   work:     /opt/elasticsearch/work
-  
+
 cluster:
   name: $ES_CLUSTER_NAME
 
