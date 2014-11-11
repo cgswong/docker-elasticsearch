@@ -6,14 +6,15 @@
 # yyyy/mm/dd [name] [version]: [notes]
 # 2014/10/15 cgwong [v0.1.0]: Initial creation.
 # 2014/11/07 cgwong v0.1.1: Changed plugin to plugins to match config file.
+# @014/11/10 cgwong v0.1.2: Updated comments and full version designation.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-##ENV ES_VERSION 1.4.0.Beta1
-##ENV ES_VERSION 1.3.4
+##ENV ES_FULL_VERSION 1.4.0.Beta1
+##ENV ES_FULL_VERSION 1.3.4
 ENV ES_VERSION 1.3
 ENV ES_DIR_BASE /opt/elasticsearch
 ENV ES_FILE_CONF ${ES_DIR_BASE}/conf/elasticsearch.yml
@@ -27,7 +28,7 @@ RUN apt-get -y update && apt-get -y install elasticsearch
 RUN mkdir -p ${ES_DIR_BASE}/{data,log,plugins,work,conf} && chown -R elasticsearch:elasticsearch ${ES_DIR_BASE}
 VOLUME ["${ES_DIR_BASE}"]
 
-# Mount elasticsearch.yml config
+# Copy in elasticsearch config file
 COPY conf/elasticsearch.yml ${ES_FILE_CONF}
 
 # Define working directory.

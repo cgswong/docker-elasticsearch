@@ -5,7 +5,7 @@ path:
   work:     /opt/elasticsearch/work
 
 cluster:
-  name: $ES_CLUSTER_NAME
+  name: ES_CLUSTER_NAME
 
 node:
   name: $ES_PORT_9200_TCP_ADDR

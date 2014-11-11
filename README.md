@@ -19,8 +19,11 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 
 ### Usage
+The environment variable `ES_CLUSTER_NAME` should be set by using the `-e` flag when running `docker run` if the default Elasticsearch configuration file is used. A default value `es_cluster01` will be used otherwise. To start a basic container:
 
-    docker run -d -p 9200:9200 -p 9300:9300 cgswong/elasticsearch
+```sh
+docker run -d -e ES_CLUSTER_NAME=es_cluster -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
+```
 
 #### Attach persistent/shared directories
 
@@ -37,7 +40,7 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
   3. Start a container by mounting data directory and specifying the custom configuration file:
 
     ```sh
-    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/elasticsearch/data cgswong/elasticsearch /usr/share/elasticsearch/bin/elasticsearch -Des.config=/opt/elasticsearch/conf/elasticsearch.yml
+    docker run -d -e CLUSTER_NAME=es_cluster -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/elasticsearch/data --name elasticsearch cgswong/elasticsearch /usr/share/elasticsearch/bin/elasticsearch -Des.config=/opt/elasticsearch/conf/elasticsearch.yml
     ```
 
 After few seconds, open `http://<host>:9200` to see the result.
