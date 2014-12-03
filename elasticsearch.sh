@@ -11,8 +11,10 @@
 # #################################################################
 
 # Set environment
-ES_DIR_BASE=/opt/elasticsearch
-ES_FILE_CONF=${ES_DIR_BASE}/conf/elasticsearch.yml
+##ES_DIR_BASE=/opt/elasticsearch
+ES_BASE=/opt
+ES_HOME=${ES_BASE}/elasticsearch
+ES_FILE_CONF=${ES_HOME}/conf/elasticsearch.yml
 ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
 
 # Set cluster name as provided
@@ -22,13 +24,14 @@ fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  /usr/share/elasticsearch/bin/elasticsearch \
+##  /usr/share/elasticsearch/bin/elasticsearch \
+  ${ES_HOME}/bin/elasticsearch \
     -Des.default.config=$ES_FILE_CONF \
 ##    -Des.default.path.logs=$ES_DIR_LOG \
 ##    -Des.default.path.data=$ES_DIR_DATA \
 ##    -Des.default.path.work=$ES_DIR_WORK \
 ##    -Des.default.path.conf=$ES_DIR_CONF "$@"
-##  /usr/share/elasticsearch/bin/elasticsearch \
+##  ${ES_HOME}/bin/elasticsearch \
     "$@"
 fi
 
