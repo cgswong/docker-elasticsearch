@@ -8,6 +8,7 @@
 # 2014/11/07 cgwong v0.1.1: Changed plugin to plugins to match config file.
 # 2014/11/10 cgwong v0.1.2: Updated comments and full version designation.
 # 2014/12/03 cgwong v0.2.0: Corrected header comment. Switched to specific package download.
+# 2014/12/04 cgwong v0.2.1: User more universal useradd/groupadd commands.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
@@ -33,8 +34,10 @@ RUN wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elastics
   && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
 # Configure environment
-RUN addgroup --system ${ES_GROUP} --quiet \
-  && adduser --system --home ${ES_HOME} --no-create-home --ingroup ${ES_GROUP} --disabled-password --shell /bin/false ${ES_USER} \
+##RUN addgroup --system ${ES_GROUP} --quiet \
+##  && adduser --system --home ${ES_HOME} --no-create-home --ingroup ${ES_GROUP} --disabled-password --shell /bin/false ${ES_USER} \
+RUN groupadd -r ${ES_GROUP} \
+  && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
   && mkdir -p ${ES_HOME}/{data,log,plugins,work,conf} \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}
 VOLUME ["${ES_HOME}"]
