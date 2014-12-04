@@ -14,9 +14,7 @@ FROM dockerfile/java:oracle-java7
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_FULL_VERSION 1.4.1
-##ENV ES_VERSION 1.3
-##ENV ES_VERSION 1.4
+ENV ES_VERSION 1.4.1
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_FILE_CONF ${ES_HOME}/conf/elasticsearch.yml
@@ -29,10 +27,10 @@ ENV ES_GROUP elasticsearch
 ##RUN apt-get -y update && apt-get -y install elasticsearch
 RUN mkdir -p ${ES_BASE}
 WORKDIR ${ES_BASE}
-RUN wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_FULL_VERSION}.tar.gz \
-  && tar zxf elasticsearch-${ES_FULL_VERSION}.tar.gz \
-  && rm -f elasticsearch-${ES_FULL_VERSION}.tar.gz \
-  && ln -s elasticsearch-${ES_FULL_VERSION} elasticsearch
+RUN wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz \
+  && tar zxf elasticsearch-${ES_VERSION}.tar.gz \
+  && rm -f elasticsearch-${ES_VERSION}.tar.gz \
+  && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
 # Configure environment
 RUN addgroup --system ${ES_GROUP} --quiet \
