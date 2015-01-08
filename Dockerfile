@@ -9,13 +9,14 @@
 # 2014/11/10 cgwong v0.1.2: Updated comments and full version designation.
 # 2014/12/03 cgwong v0.2.0: Corrected header comment. Switched to specific package download.
 # 2014/12/04 cgwong v0.2.1: User more universal useradd/groupadd commands.
+# 2015/01/08 cgwong v0.3.1: Updated to ES 1.4.2.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_VERSION 1.4.1
+ENV ES_VERSION 1.4.2
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_FILE_CONF ${ES_HOME}/conf/elasticsearch.yml
