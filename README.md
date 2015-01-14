@@ -1,12 +1,13 @@
 ## ElasticSearch Dockerfile
 
-This repository contains **Dockerfile** of [ElasticSearch](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/elasticsearch/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
-It is usually the back-end for a Logstash instance with Kibana as the frontend. Current version used is 1.4.1.
+This repository contains a **Dockerfile** of [ElasticSearch](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/elasticsearch/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
+
+It is usually the back-end for a Logstash instance with Kibana as the frontend. Current version used is 1.4.2.
 
 
 ### Base Docker Image
 
-* [dockerfile/java:oracle-java7](http://dockerfile.github.io/#/java)
+* [dockerfile/java:oracle-java7](http://dockerfile.github.io/#/java) which is based on [dockerfile/ubuntu](http://dockerfile.github.io/#/ubuntu)
 
 
 ### Installation

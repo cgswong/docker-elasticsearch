@@ -10,6 +10,7 @@
 # 2014/12/03 cgwong v0.2.0: Corrected header comment. Switched to specific package download.
 # 2014/12/04 cgwong v0.2.1: User more universal useradd/groupadd commands.
 # 2015/01/08 cgwong v0.3.1: Updated to ES 1.4.2.
+# 2015/01/14 cgwong v0.4.0: More variable usage. Use curl instead of wget for download.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
@@ -22,6 +23,7 @@ ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_FILE_CONF ${ES_HOME}/conf/elasticsearch.yml
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
+ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 
 # Install Elasticsearch
 ##RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -29,14 +31,10 @@ ENV ES_GROUP elasticsearch
 ##RUN apt-get -y update && apt-get -y install elasticsearch
 RUN mkdir -p ${ES_BASE}
 WORKDIR ${ES_BASE}
-RUN wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz \
-  && tar zxf elasticsearch-${ES_VERSION}.tar.gz \
-  && rm -f elasticsearch-${ES_VERSION}.tar.gz \
+RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx -C ${ES_BASE} \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
 # Configure environment
-##RUN addgroup --system ${ES_GROUP} --quiet \
-##  && adduser --system --home ${ES_HOME} --no-create-home --ingroup ${ES_GROUP} --disabled-password --shell /bin/false ${ES_USER} \
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
   && mkdir -p ${ES_HOME}/{data,log,plugins,work,conf} \
@@ -56,5 +54,6 @@ EXPOSE 9300
 
 # Start container
 USER ${ES_USER}
-COPY elasticsearch.sh /usr/local/bin/elasticsearch.sh
-ENTRYPOINT ["/usr/local/bin/elasticsearch.sh"]
+COPY elasticsearch.sh ${ES_EXEC}
+RUN chmod +x ${ES_EXEC}
+ENTRYPOINT ["$ES_EXEC"]
