@@ -41,8 +41,11 @@ RUN groupadd -r ${ES_GROUP} \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}
 VOLUME ["${ES_HOME}"]
 
-# Copy in elasticsearch config file
+# Copy in elasticsearch config file and others
 COPY conf/elasticsearch.yml ${ES_FILE_CONF}
+COPY elasticsearch.sh ${ES_EXEC}
+RUN chmod +x ${ES_EXEC} \
+  && chown $ES_USER:$ES_GROUP $ES_EXEC
 
 # Define working directory.
 WORKDIR ${ES_HOME}
@@ -54,6 +57,4 @@ EXPOSE 9300
 
 # Start container
 USER ${ES_USER}
-COPY elasticsearch.sh ${ES_EXEC}
-RUN chmod +x ${ES_EXEC}
 ENTRYPOINT ["$ES_EXEC"]
