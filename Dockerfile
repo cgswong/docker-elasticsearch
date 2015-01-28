@@ -39,17 +39,15 @@ RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elast
   && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
 # Configure environment
+COPY conf/elasticsearch.yml ${ES_VOL}/conf/
+COPY elasticsearch.sh ${ES_EXEC}
+
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
   && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf} \
-  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL}
+  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
+  && chmod +x ${ES_EXEC}
 VOLUME ["${ES_VOL}"]
-
-# Copy in elasticsearch config file and others
-COPY conf/elasticsearch.yml ${ES_FILE_CONF}/
-COPY conf/elasticsearch.yml ${ES_VOL}/conf/
-RUN chmod +x ${ES_EXEC} \
-  && chown $ES_USER:$ES_GROUP $ES_EXEC
 
 # Define working directory.
 WORKDIR ${ES_VOL}
