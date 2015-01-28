@@ -36,7 +36,8 @@ ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 RUN mkdir -p ${ES_BASE}
 WORKDIR ${ES_BASE}
 RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx -C ${ES_BASE} \
-  && ln -s elasticsearch-${ES_VERSION} elasticsearch
+  && ln -s elasticsearch-${ES_VERSION} elasticsearch \
+  && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf}
 
 # Configure environment
 COPY conf/elasticsearch.yml ${ES_VOL}/conf/
@@ -44,7 +45,6 @@ COPY elasticsearch.sh ${ES_EXEC}
 
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
-  && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf} \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
   && chmod +x ${ES_EXEC}
 VOLUME ["${ES_VOL}"]
