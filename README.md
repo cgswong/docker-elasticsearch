@@ -7,7 +7,7 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 ### Base Docker Image
 
-* [dockerfile/java:oracle-java7](http://dockerfile.github.io/#/java) which is based on [dockerfile/ubuntu](http://dockerfile.github.io/#/ubuntu)
+* [dockerfile/java:oracle-java8](http://dockerfile.github.io/#/java) which is based on [dockerfile/ubuntu](http://dockerfile.github.io/#/ubuntu)
 
 
 ### Installation
@@ -20,28 +20,28 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 
 ### Usage
-The environment variable `ES_CLUSTER_NAME` should be set by using the `-e` flag when running `docker run` if the default Elasticsearch configuration file is used. A default value `es_cluster01` will be used otherwise. To start a basic container:
+To start a basic container:
 
 ```sh
-docker run -d -e ES_CLUSTER_NAME=es_cluster -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
+docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
 ```
 
 #### Attach persistent/shared directories
 
-  1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/elasticsearch` is exposed as a volume within the container with data stored in `/opt/elasticsearch/data`.
+  1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/esvol` is exposed as a volume within the container with data stored in `/opt/esvol/data`.
 
   2. Create ElasticSearch config file at `<data-dir>/conf/elasticsearch.yml`.
 
     ```yml
     path:
-      logs: /opt/elasticsearch/log
-      data: /opt/elasticsearch/data
+      logs: /opt/esvol/log
+      data: /opt/esvol/data
     ```
 
   3. Start a container by mounting data directory and specifying the custom configuration file:
 
     ```sh
-    docker run -d -e CLUSTER_NAME=es_cluster -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/elasticsearch/data --name elasticsearch cgswong/elasticsearch /usr/share/elasticsearch/bin/elasticsearch -Des.config=/opt/elasticsearch/conf/elasticsearch.yml
+    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/esvol/data --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/opt/esvol/conf/elasticsearch.yml
     ```
 
 After few seconds, open `http://<host>:9200` to see the result.
