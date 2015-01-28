@@ -4,22 +4,22 @@
 # Can optionally include more than one location, causing data to be striped across
 # the locations (a la RAID 0) on a file level, favouring locations with most free
 # space on creation. For example:
-#path.data: /opt/elasticsearch/data1,/opt/elasticsearch/data2
-path.data: /opt/elasticsearch/data
+#path.data: /opt/elasticsearch/$inst/data1,/opt/elasticsearch/$inst/data2
+path.data: /opt/esvol/data
 # Path to log files:
-path.logs: /opt/elasticsearch/log
+path.logs: /opt/esvol/log
 # Path to where plugins are installed:
-path.plugins: /opt/elasticsearch/plugins
+path.plugins: /opt/esvol/plugins
 # Path to temporary files:
-path.work: /opt/elasticsearch/work
+path.work: /opt/esvol/work
 
 # Cluster name identifies your cluster for auto-discovery. If you're running
 # multiple clusters on the same network, make sure you're using unique names.
-cluster.name: ES_CLUSTER_NAME
+##cluster.name: $ES_CLUSTER_NAME
 
 # Node names are generated dynamically on startup, so you're relieved
 # from configuring them manually. You can tie this node to a specific name:
-node.name: $ES_PORT_9200_TCP_ADDR
+##node.name: $ES_PORT_9200_TCP_ADDR
 
 # Allow recovery process after N nodes in a cluster are up:
 #gateway.recover_after_nodes: 1

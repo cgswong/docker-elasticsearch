@@ -11,9 +11,12 @@
 # 2014/12/04 cgwong v0.2.1: User more universal useradd/groupadd commands.
 # 2015/01/08 cgwong v0.3.1: Updated to ES 1.4.2.
 # 2015/01/14 cgwong v0.4.0: More variable usage. Use curl instead of wget for download.
+# 2015/01/28 cgwong v0.5.0: Removed need for script.
+#                           Switched to CMD (from ENTRYPOINT) and fixed variable usage to actual.
+#                           Now using Java 8.
 # ################################################################
 
-FROM dockerfile/java:oracle-java7
+FROM dockerfile/java:oracle-java8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
@@ -21,6 +24,7 @@ ENV ES_VERSION 1.4.2
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_FILE_CONF ${ES_HOME}/conf/elasticsearch.yml
+ENV ES_VOL ${ES_BASE}/esvol
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
 ENV ES_EXEC /usr/local/bin/elasticsearch.sh
@@ -37,18 +41,18 @@ RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elast
 # Configure environment
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
-  && mkdir -p ${ES_HOME}/{data,log,plugins,work,conf} \
-  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}
-VOLUME ["${ES_HOME}"]
+  && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf} \
+  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL}
+VOLUME ["${ES_VOL}"]
 
 # Copy in elasticsearch config file and others
-COPY conf/elasticsearch.yml ${ES_FILE_CONF}
-COPY elasticsearch.sh ${ES_EXEC}
+COPY conf/elasticsearch.yml ${ES_FILE_CONF}/
+COPY conf/elasticsearch.yml ${ES_VOL}/conf/
 RUN chmod +x ${ES_EXEC} \
   && chown $ES_USER:$ES_GROUP $ES_EXEC
 
 # Define working directory.
-WORKDIR ${ES_HOME}
+WORKDIR ${ES_VOL}
 
 # Listen for connections on HTTP port/interface: 9200
 EXPOSE 9200
@@ -57,4 +61,4 @@ EXPOSE 9300
 
 # Start container
 USER ${ES_USER}
-ENTRYPOINT ["$ES_EXEC"]
+CMD ["/opt/elasticsearch/bin/elasticsearch"]
