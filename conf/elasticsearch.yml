@@ -15,11 +15,11 @@ path.work: /opt/esvol/work
 
 # Cluster name identifies your cluster for auto-discovery. If you're running
 # multiple clusters on the same network, make sure you're using unique names.
-##cluster.name: $ES_CLUSTER_NAME
+##cluster.name: ES_CLUSTER_NAME
 
 # Node names are generated dynamically on startup, so you're relieved
 # from configuring them manually. You can tie this node to a specific name:
-##node.name: $ES_PORT_9200_TCP_ADDR
+##node.name: ES_PORT_9200_TCP_ADDR
 
 # Allow recovery process after N nodes in a cluster are up:
 #gateway.recover_after_nodes: 1
