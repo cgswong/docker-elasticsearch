@@ -20,17 +20,17 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 
 ### Usage
-To start a basic container:
+To start a basic container with ephemeral storage:
 
 ```sh
 docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
 ```
 
-#### Attach persistent/shared directories
+#### Attach Persistent/Shared Storage
 
   1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/esvol` is exposed as a volume within the container with data stored in `/opt/esvol/data`.
 
-  2. Create ElasticSearch config file at `<data-dir>/conf/elasticsearch.yml`.
+  2. Create an Elasticsearch config file at `<data-dir>`/conf/elasticsearch.yml. A sample file is:
 
     ```yml
     path:
@@ -38,10 +38,10 @@ docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsear
       data: /opt/esvol/data
     ```
 
-  3. Start a container by mounting data directory and specifying the custom configuration file:
+  3. Start the container by mounting the data directory and specifying the custom configuration file:
 
     ```sh
-    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/esvol/data --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/opt/esvol/conf/elasticsearch.yml
+    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/esvol --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/opt/esvol/conf/elasticsearch.yml
     ```
 
-After few seconds, open `http://<host>:9200` to see the result.
+After a few seconds, open `http://<host>:9200` to see the result.

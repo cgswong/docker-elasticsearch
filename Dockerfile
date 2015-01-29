@@ -24,17 +24,12 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 ENV ES_VERSION 1.4.2
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
-ENV ES_FILE_CONF ${ES_HOME}/conf/elasticsearch.yml
 ENV ES_VOL ${ES_BASE}/esvol
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
 ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 
 # Install Elasticsearch
-##RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
-##RUN echo "deb http://packages.elasticsearch.org/elasticsearch/${ES_VERSION}/debian stable main" >> /etc/apt/sources.list
-##RUN apt-get -y update && apt-get -y install elasticsearch
-RUN mkdir -p ${ES_BASE}
 WORKDIR ${ES_BASE}
 RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx -C ${ES_BASE} \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch \
@@ -53,11 +48,11 @@ VOLUME ["${ES_VOL}"]
 # Define working directory.
 WORKDIR ${ES_VOL}
 
-# Listen for connections on HTTP port/interface: 9200
+# Listen for connections on TCP port 9200
 EXPOSE 9200
-# Listen for cluster connections on port/interface: 9300
+# Listen for cluster connections on TCP port 9300
 EXPOSE 9300
 
 # Start container
 ##USER ${ES_USER}
-CMD ["/opt/elasticsearch/bin/elasticsearch"]
+CMD ["/usr/local/bin/elasticsearch.sh"]
