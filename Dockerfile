@@ -14,6 +14,7 @@
 # 2015/01/28 cgwong v0.5.0: Removed need for script.
 #                           Switched to CMD (from ENTRYPOINT) and fixed variable usage to actual.
 #                           Now using Java 8.
+#                           Run as root user (for now).
 # ################################################################
 
 FROM dockerfile/java:oracle-java8
@@ -40,13 +41,13 @@ RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elast
   && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf}
 
 # Configure environment
-COPY conf/elasticsearch.yml ${ES_VOL}/conf/
+COPY conf/elasticsearch.yml ${ES_HOME}/config/
 COPY elasticsearch.sh ${ES_EXEC}
 
-RUN groupadd -r ${ES_GROUP} \
-  && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
-  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
-  && chmod +x ${ES_EXEC}
+##RUN groupadd -r ${ES_GROUP} \
+##  && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
+##  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
+RUN chmod +x ${ES_EXEC}
 VOLUME ["${ES_VOL}"]
 
 # Define working directory.
@@ -58,5 +59,5 @@ EXPOSE 9200
 EXPOSE 9300
 
 # Start container
-USER ${ES_USER}
+##USER ${ES_USER}
 CMD ["/opt/elasticsearch/bin/elasticsearch"]
