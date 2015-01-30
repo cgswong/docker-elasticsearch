@@ -1,0 +1,48 @@
+# Elasticsearch configuration file #
+
+# Path to directory where to store index data allocated for this node.
+# Can optionally include more than one location, causing data to be striped across
+# the locations (a la RAID 0) on a file level, favouring locations with most free
+# space on creation. For example:
+#path.data: /opt/elasticsearch/$inst/data1,/opt/elasticsearch/$inst/data2
+path.data: /opt/esvol/data
+# Path to log files:
+path.logs: /opt/esvol/log
+# Path to where plugins are installed:
+path.plugins: /opt/esvol/plugins
+# Path to temporary files:
+path.work: /opt/esvol/work
+
+# Cluster name identifies your cluster for auto-discovery. If you're running
+# multiple clusters on the same network, make sure you're using unique names.
+cluster.name: es_cluster01
+
+# Node names are generated dynamically on startup, so you're relieved
+# from configuring them manually. You can tie this node to a specific name:
+#node.name: ES_PORT_9200_TCP_ADDR
+
+# Allow recovery process after N nodes in a cluster are up:
+#gateway.recover_after_nodes: 1
+# Set the timeout to initiate the recovery process, once the N nodes
+# from previous setting are up (accepts time value):
+gateway.recover_after_time: 5m
+# Set how many nodes are expected in this cluster. Once these N nodes
+# are up (and recover_after_nodes is met), begin recovery process immediately
+# (without waiting for recover_after_time to expire):
+#gateway.expected_nodes: 2
+
+# Disable multicast discovery:
+discovery.zen.ping.multicast.enabled: false
+# Configure an initial list of master nodes in the cluster
+# to perform discovery when new nodes (master or data) are started:
+#discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]
+discovery.zen.ping.unicast.hosts: [
+{{ range $server := .es_cluster_servers }}
+  "{{ $server.Value }}",
+{{ end }}
+]
+
+# Elasticsearch performs poorly when JVM starts swapping so ensure that
+# it _never_ swaps.
+# Set this property to true to lock the memory:
+bootstrap.mlockall: true
