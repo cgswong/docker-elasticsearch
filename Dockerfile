@@ -15,9 +15,11 @@
 #                           Switched to CMD (from ENTRYPOINT) and fixed variable usage to actual.
 #                           Now using Java 8.
 #                           Run as root user (for now).
+# 2015/01/30 cgwong v1.0.0: Switch to minimal Debian based Java build. Use confd for config management.
+#                           Use specific user.
 # ################################################################
 
-FROM dockerfile/java:oracle-java8
+FROM cgswong/java:oraclejdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
@@ -25,24 +27,23 @@ ENV ES_VERSION 1.4.2
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_VOL ${ES_BASE}/esvol
+ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
-ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 
-# Install Elasticsearch
+# Install requirements and Elasticsearch
 WORKDIR ${ES_BASE}
 RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx -C ${ES_BASE} \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch \
   && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf}
 
 # Configure environment
-COPY conf/elasticsearch.yml ${ES_HOME}/config/
-COPY elasticsearch.sh ${ES_EXEC}
+COPY src/ /
 
-##RUN groupadd -r ${ES_GROUP} \
-##  && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
-##  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
-RUN chmod +x ${ES_EXEC}
+RUN groupadd -r ${ES_GROUP} \
+  && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
+  && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME} ${ES_VOL} $ES_EXEC \
+  && chmod +x ${ES_EXEC}
 VOLUME ["${ES_VOL}"]
 
 # Define working directory.
