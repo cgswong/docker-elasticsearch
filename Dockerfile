@@ -19,23 +19,23 @@
 #                           Use specific user.
 # ################################################################
 
-FROM cgswong/java:oraclejdk8
+FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
 ENV ES_VERSION 1.4.2
-ENV ES_BASE /opt
-ENV ES_HOME ${ES_BASE}/elasticsearch
-ENV ES_VOL ${ES_BASE}/esvol
+ENV ES_HOME /opt/elasticsearch
+ENV ES_VOL /esvol
 ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
 
 # Install requirements and Elasticsearch
 WORKDIR ${ES_BASE}
-RUN curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx -C ${ES_BASE} \
+RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
+  && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zx - \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch \
-  && mkdir -p ${ES_VOL}/{data,log,plugins,work,conf}
+  && mkdir -p ${ES_VOL}/{data,logs,plugins,work,config}
 
 # Configure environment
 COPY src/ /

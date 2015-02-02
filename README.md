@@ -7,7 +7,7 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 ### Base Docker Image
 
-* [cgswong/java:oraclejdk8](https://registry.hub.docker.com/u/cgswong/java/) which is based on [cgswong/min-jessie](https://registry.hub.docker.com/u/cgswong/min-jessie/)
+* [cgswong/java:oracleJDK8](https://registry.hub.docker.com/u/cgswong/java/) which is based on [cgswong/min-jessie](https://registry.hub.docker.com/u/cgswong/min-jessie/)
 
 
 ### Installation
@@ -26,11 +26,11 @@ To start a basic container with ephemeral storage:
 docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
 ```
 
-#### Attach Persistent/Shared Storage
+To start a container with attached persistent/shared storage
 
-  1. Create a mountable data directory `<data-dir>` on the host. The base directory `/opt/esvol` is exposed as a volume within the container with data stored in `/opt/esvol/data`.
+  1. Create a mountable data directory `<data-dir>` on the host with a `data` directory. The base directory `/esvol` is exposed as a volume within the container with data stored in `/esvol/data`.
 
-  2. Create an Elasticsearch config file at `<data-dir>`/conf/elasticsearch.yml. A sample file is:
+  2. Create an Elasticsearch config file at `<data-dir>`/config/elasticsearch.yml. A sample file is:
 
     ```yml
     path:
@@ -41,7 +41,7 @@ docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsear
   3. Start the container by mounting the data directory and specifying the custom configuration file:
 
     ```sh
-    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/opt/esvol --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/opt/esvol/conf/elasticsearch.yml
+    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/esvol --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/esvol/config/elasticsearch.yml
     ```
 
 After a few seconds, open `http://<host>:9200` to see the result.
@@ -49,11 +49,11 @@ After a few seconds, open `http://<host>:9200` to see the result.
 ### Changing Defaults
 Various environment variables can be passed to do configuration without attaching persistent storage to pass in a configuration file:
 
-  - ES_CLUSTER_NAME: Sets the cluster name
-  - ES_PORT_9200_TCP_ADDR: Sets the node name
-  - KV_URL: Sets the IP and port combination for the consul backend. The format is <IP>:>PORT>.
+  - ES_CLUSTER_NAME: Sets the cluster name (defaults to `es_cluster01`)
+  - ES_PORT_9200_TCP_ADDR: Sets the node name. This is automatically set when using a linked container, otherwise defaults to as set by Elasticsearch (i.e. random Marvel character).
+  - KV_URL: Sets the IP and port combination for the **consul** backend using **confd**. The format is <IP>:<PORT>.
 
-The KV_URL can be used for doing automatic configuration and reload whenever configuration changes are made.
+The KV_URL is used for automatic configuration and reloading whenever configuration changes are made. _The latter is still a work in progress_.
 
 ```sh
 docker run -d -p 9200:9200 -p 9300:9300 -e ES_CLUSTER_NAME=es_test01 --name elasticsearch cgswong/elasticsearch

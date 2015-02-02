@@ -17,15 +17,14 @@
 set -eo pipefail
 
 # Set environment
-ES_BASE=/opt
-ES_HOME=${ES_BASE}/elasticsearch
-ES_VOL=${ES_BASE}/esvol
+ES_HOME=/opt/elasticsearch
+ES_VOL=/esvol
 ES_CONF=${ES_CONF:-"$ES_VOL/config/elasticsearch.yml"}
 ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
 ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-"9200"}
-ES_DIR_LOG=${ES_DIR_LOG:-"$ES_VOL/logs"}
-ES_DIR_DATA=${ES_DIR_DATA:-"$ES_VOL/data"}
-ES_DIR_WORK=${ES_DIR_WORK:-"$ES_VOL/work"}
+##ES_DIR_LOG=${ES_DIR_LOG:-"$ES_VOL/logs"}
+##ES_DIR_DATA=${ES_DIR_DATA:-"$ES_VOL/data"}
+##ES_DIR_WORK=${ES_DIR_WORK:-"$ES_VOL/work"}
 KV_URL=${KV_URL:-"172.17.8.101:8500"}
 
 # Set varibles as provided
@@ -48,12 +47,12 @@ echo "[ES] confd is now monitoring consul for changes..."
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   su -s /bin/bash $ES_USER -c \
-    '${ES_HOME}/bin/elasticsearch \
+    ${ES_HOME}/bin/elasticsearch \
     -Des.default.config=$ES_CONF \
-    -Des.default.path.logs=$ES_DIR_LOG \
-    -Des.default.path.data=$ES_DIR_DATA \
-    -Des.default.path.work=$ES_DIR_WORK \
-    "$@"'
+##    -Des.default.path.logs=$ES_DIR_LOG \
+##    -Des.default.path.data=$ES_DIR_DATA \
+##    -Des.default.path.work=$ES_DIR_WORK \
+    "$@"
 fi
 
 # As argument is not Elasticsearch, assume user want to run his own process, for sample a `bash` shell to explore this image
