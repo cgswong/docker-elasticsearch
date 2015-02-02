@@ -17,6 +17,7 @@
 #                           Run as root user (for now).
 # 2015/01/30 cgwong v1.0.0: Switch to minimal Debian based Java build. Use confd for config management.
 #                           Use specific user.
+# 2015/02/02 cgwong v1.0.1: Corrected syntax issues.
 # ################################################################
 
 FROM cgswong/java:oracleJDK8
@@ -37,7 +38,11 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch \
-  && mkdir -p ${ES_VOL}/{data,logs,plugins,work,config}
+  && mkdir -p ${ES_VOL}/data \
+  && mkdir -p ${ES_VOL}/logs \
+  && mkdir -p ${ES_VOL}/plugins \
+  && mkdir -p ${ES_VOL}/work \
+  && mkdir -p ${ES_VOL}/config
 
 # Configure environment
 COPY src/ /
