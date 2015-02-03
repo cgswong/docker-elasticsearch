@@ -20,30 +20,22 @@ set -eo pipefail
 # Set environment
 ES_HOME=/opt/elasticsearch
 ES_VOL=/esvol
-ES_CONF=${ES_CONF:-"$ES_HOME/config/elasticsearch.yml"}
+ES_CONF=${ES_CONF:-"$ES_VOL/config/elasticsearch.yml"}
 ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
 ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-"9200"}
 ##ES_DIR_LOG=${ES_DIR_LOG:-"$ES_VOL/logs"}
 ##ES_DIR_DATA=${ES_DIR_DATA:-"$ES_VOL/data"}
 ##ES_DIR_WORK=${ES_DIR_WORK:-"$ES_VOL/work"}
-KV_URL=${KV_URL:-"172.17.8.101:8500"}
+
+# Try to make initial configuration
+confd -onetime -backend env -config-file /etc/confd/conf.d/elasticsearch.yml.toml
 
 # Set varibles as provided
-[ ! -z ${ES_CLUSTER_NAME} ] && sed -e "s/cluster.name: es_cluster01/cluster.name: ${ES_CLUSTER_NAME}/" -i $ES_CONF
-[ ! -z ${ES_PORT_9200_TCP_ADDR} ] && sed -e "s/#node.name: ES_PORT_9200_TCP_ADDR/node.name: ${ES_PORT_9200_TCP_ADDR}/" -i $ES_CONF
+##[ ! -z ${ES_CLUSTER_NAME} ] && sed -e "s/cluster.name: es_cluster01/cluster.name: ${ES_CLUSTER_NAME}/" -i $ES_CONF
+##[ ! -z ${ES_PORT_9200_TCP_ADDR} ] && sed -e "s/#node.name: ES_PORT_9200_TCP_ADDR/node.name: ${ES_PORT_9200_TCP_ADDR}/" -i $ES_CONF
 [ ! -z ${ES_RECOVER_TIME} ] && sed -e "s/#gateway.recover_after_time: 5m/gateway.recover_after_time: ${ES_RECOVER_TIME}/" -i $ES_CONF
 [ ! -z ${ES_MULTICAST} ] && sed -e "s/#discovery.zen.ping.multicast.enabled: false/discovery.zen.ping.multicast.enabled: ${ES_MULTICAST}/" -i $ES_CONF
 [ ! -z ${ES_UNICAST_HOSTS} ] && sed -e "s/#discovery.zen.ping.unicast.hosts: [\"host1\", \"host2:port\"]/discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}/" -i $ES_CONF
-
-# Try to make initial configuration every 5 seconds until successful
-until confd -onetime -backend consul -node $KV_URL -config-file /etc/confd/conf.d/elasticsearch.yml.toml; do
-    echo "[ES] waiting for confd to create initial Elasticsearch configuration"
-    sleep 5
-done
-
-# Put a continual polling `confd` process into the background to watch for changes every 10 seconds
-confd -interval 10 -backend consul -node $KV_URL -config-file /etc/confd/conf.d/elasticsearch.yml.toml &
-echo "[ES] confd is now monitoring consul for changes..."
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then

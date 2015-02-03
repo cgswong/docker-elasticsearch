@@ -19,7 +19,7 @@ cluster.name: {{getv "/es/cluster/name"}}
 
 # Node names are generated dynamically on startup, so you're relieved
 # from configuring them manually. You can tie this node to a specific name:
-#node.name: ES_PORT_9200_TCP_ADDR
+node.name: {{getv "/es/port/9200/tcp/addr"}}
 
 # Allow recovery process after N nodes in a cluster are up:
 #gateway.recover_after_nodes: 1
@@ -36,13 +36,13 @@ discovery.zen.ping.multicast.enabled: false
 # Configure an initial list of master nodes in the cluster
 # to perform discovery when new nodes (master or data) are started:
 #discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]
-discovery.zen.ping.unicast.hosts: [
-{{ range $server := .es_cluster_name_servers }}
-  "{{ $server.Value }}",
-{{ end }}
-]
+#discovery.zen.ping.unicast.hosts: [
+#{{ range $server := .es_cluster_name_servers }}
+#  "{{ $server.Value }}",
+#{{ end }}
+#]
 
 # Elasticsearch performs poorly when JVM starts swapping so ensure that
 # it _never_ swaps.
 # Set this property to true to lock the memory:
-bootstrap.mlockall: true
+#bootstrap.mlockall: true
