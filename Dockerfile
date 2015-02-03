@@ -45,7 +45,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && mkdir -p ${ES_VOL}/config
 
 # Configure environment
-COPY src/ /
+ADD ./src /
 
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
