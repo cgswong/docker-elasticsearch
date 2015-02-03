@@ -7,7 +7,7 @@
 #path.data: /opt/elasticsearch/$inst/data1,/opt/elasticsearch/$inst/data2
 path.data: /esvol/data
 # Path to log files:
-path.logs: /esvol/log
+path.logs: /esvol/logs
 # Path to where plugins are installed:
 path.plugins: /esvol/plugins
 # Path to temporary files:
