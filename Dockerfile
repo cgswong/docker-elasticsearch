@@ -43,17 +43,17 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && mkdir -p ${ES_VOL}/plugins \
   && mkdir -p ${ES_VOL}/work \
   && mkdir -p ${ES_VOL}/config \
-  && curl -O https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
-  && mv confd /usr/local/bin/confd \
+  && curl -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
   && chmod +x /usr/local/bin/confd
 
 # Configure environment
-COPY src /
+COPY src/ /
 
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} ${ES_EXEC} \
-  && chmod +x ${ES_EXEC}
+  && chmod +x ${ES_EXEC} \
+  && ${ES_HOME}/bin/plugin -install lmenezes/elasticsearch-kopf
 
 # Expose volumes
 VOLUME ["${ES_VOL}/data", "${ES_VOL}/config", "${ES_VOL}/logs"]
