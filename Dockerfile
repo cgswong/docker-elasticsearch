@@ -52,8 +52,7 @@ COPY src/ /
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} ${ES_EXEC} \
-  && chmod +x ${ES_EXEC} \
-  && ${ES_HOME}/bin/plugin -install lmenezes/elasticsearch-kopf
+  && chmod +x ${ES_EXEC}
 
 # Expose volumes
 VOLUME ["${ES_VOL}/data", "${ES_VOL}/config", "${ES_VOL}/logs"]
