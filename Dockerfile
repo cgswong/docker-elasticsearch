@@ -44,7 +44,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && mkdir -p ${ES_VOL}/plugins \
   && mkdir -p ${ES_VOL}/work \
   && mkdir -p ${ES_VOL}/config \
-  && curl -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
   && chmod +x /usr/local/bin/confd
 
 # Configure environment
