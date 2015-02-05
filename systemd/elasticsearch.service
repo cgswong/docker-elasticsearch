@@ -16,17 +16,17 @@ After=consul.service
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
 
-ExecStartPre=/usr/bin/mkdir -p /data/es
+ExecStartPre=/usr/bin/mkdir -p /es/data
 ExecStartPre=/usr/bin/docker pull cgswong/elasticsearch
-ExecStart=/usr/bin/docker run --rm --name %p -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
-#ExecStart=/usr/bin/docker run --rm --name %p -p 9200:9200 -p 9300:9300 -e KV_TYPE=consul -e KV_PORT=8500 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
+ExecStart=/usr/bin/docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
+#ExecStart=/usr/bin/docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 -e KV_TYPE=consul -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
 ExecStartPost=/usr/bin/etcdctl set /es/host ${COREOS_PUBLIC_IPV4}
 #ExecStartPost=/usr/bin/curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host
 ExecStop=/usr/bin/docker stop %p
 ExecStop=/usr/bin/docker kill %p
 ExecStop=/usr/bin/docker rm %p
-ExecStopPost=/usr/bin/etcdctl rm /es/host --with-value '${COREOS_PUBLIC_IPV4}:9200'
-#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/${COREOS_PUBLIC_IPV4}:9200
+ExecStopPost=/usr/bin/etcdctl rm /es/host --with-value ${COREOS_PUBLIC_IPV4}
+#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/${COREOS_PUBLIC_IPV4}
 
 [X-Fleet]
 Conflicts=%p.service

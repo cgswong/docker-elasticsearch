@@ -20,41 +20,45 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend. 
 
 
 ### Usage
-To start a basic container with ephemeral storage:
+To start a basic container using the default etcd KV store and ephemeral storage:
 
 ```sh
-docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch cgswong/elasticsearch
+source /etc/environment
+docker run --rm --name %p -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/elasticsearch
+etcdctl set /es/host ${COREOS_PUBLIC_IPV4}
 ```
 
-To start a container with attached persistent/shared storage
+To clean up after stopping the container: `etcdctl rm /es/host --with-value ${COREOS_PUBLIC_IPV4}`
 
-  1. Create a mountable data directory `<data-dir>` on the host with a `data` directory. The base directory `/esvol` is exposed as a volume within the container with data stored in `/esvol/data`.
+Consul equivalent:
 
-  2. Create an Elasticsearch config file at `<data-dir>`/config/elasticsearch.yml. A sample file is:
+```sh
+source /etc/environment
+docker run --rm --name %p -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/elasticsearch
+curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host
+```
 
-    ```yml
-    path:
-      logs: /opt/esvol/log
-      data: /opt/esvol/data
-    ```
+To clean up after stopping the container: `curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/${COREOS_PUBLIC_IPV4}`
 
-  3. Start the container by mounting the data directory and specifying the custom configuration file:
+Within the container the data (`/esvol/data`), log (`/esvol/logs`) and config (`/esvol/config`) directories are exposed as volumes so to start a default container with attached persistent/shared storage for data:
 
-    ```sh
-    docker run -d -p 9200:9200 -p 9300:9300 -v <data-dir>:/esvol --name elasticsearch cgswong/elasticsearch /opt/elasticsearch/bin/elasticsearch -Des.config=/esvol/config/elasticsearch.yml
-    ```
+```sh
+source /etc/environment
+mkdir -p /es/data
+docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/elasticsearch
+etcdctl set /es/host ${COREOS_PUBLIC_IPV4}
+```
 
-After a few seconds, open `http://<host>:9200` to see the result.
+The cleanup process remains the same, along with the equivalent for the consul version as previously shown. Attaching persistent storage ensures that the data is retained across container restarts (with some obvious caveats). At this time though, given the state of maturity in this space, I would recommend this be done via a data container (hosting an AWS S3 bucket or other externalized persistent storage) in a production environment.
+
+### Using an Elasticsearch Cluster
+Multiple Elasticsearch containers can be launched (or stopped) and the cluster will dynamically resize. **Caution: Note that this process is still in testing and is not robust enough for any type of usage.**
 
 ### Changing Defaults
-Various environment variables can be passed to do configuration without attaching persistent storage to pass in a configuration file:
+A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
 
-  - ES_CLUSTER_NAME: Sets the cluster name (defaults to `es_cluster01`)
-  - ES_PORT_9200_TCP_ADDR: Sets the node name. This is automatically set when using a linked container, otherwise defaults to as set by Elasticsearch (i.e. random Marvel character).
-  - KV_URL: Sets the IP and port combination for the **consul** backend using **confd**. The format is <IP>:<PORT>.
+  - ES_CLUSTER: Sets the cluster name (defaults to `es_cluster01`)
+  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
+  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
 
-The KV_URL is used for automatic configuration and reloading whenever configuration changes are made. _The latter is still a work in progress_.
-
-```sh
-docker run -d -p 9200:9200 -p 9300:9300 -e ES_CLUSTER_NAME=es_test01 --name elasticsearch cgswong/elasticsearch
-```
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
