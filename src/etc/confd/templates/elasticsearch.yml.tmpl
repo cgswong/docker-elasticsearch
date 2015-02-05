@@ -15,11 +15,11 @@ path.work: /esvol/work
 
 # Cluster name identifies your cluster for auto-discovery. If you're running
 # multiple clusters on the same network, make sure you're using unique names.
-cluster.name: {{getv "/es/cluster/name"}}
+cluster.name: "{{ .es_cluster }}"
 
 # Node names are generated dynamically on startup, so you're relieved
 # from configuring them manually. You can tie this node to a specific name:
-node.name: {{getv "/es/port/9200/tcp/addr"}}
+#node.name: "{{ .es_host }}"
 
 # Allow recovery process after N nodes in a cluster are up:
 #gateway.recover_after_nodes: 1
@@ -36,11 +36,8 @@ discovery.zen.ping.multicast.enabled: false
 # Configure an initial list of master nodes in the cluster
 # to perform discovery when new nodes (master or data) are started:
 #discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]
-#discovery.zen.ping.unicast.hosts: [
-#{{ range $server := .es_cluster_name_servers }}
-#  "{{ $server.Value }}",
-#{{ end }}
-#]
+#discovery.zen.ping.unicast.hosts: [{{ range $server := .es_host }} "{{ $server.Value }}", {{ end }}]
+discovery.zen.ping.unicast.hosts: [{{ range $index, $server := .es_host }}{{if $index}}, {{end}}"{{$server.Value}}"{{ end }}]
 
 # Elasticsearch performs poorly when JVM starts swapping so ensure that
 # it _never_ swaps.

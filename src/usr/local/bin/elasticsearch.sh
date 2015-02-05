@@ -21,30 +21,37 @@ set -eo pipefail
 ES_HOME=/opt/elasticsearch
 ES_VOL=/esvol
 ES_CONF=${ES_CONF:-"$ES_VOL/config/elasticsearch.yml"}
-ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
-ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-"9200"}
-##ES_DIR_LOG=${ES_DIR_LOG:-"$ES_VOL/logs"}
-##ES_DIR_DATA=${ES_DIR_DATA:-"$ES_VOL/data"}
-##ES_DIR_WORK=${ES_DIR_WORK:-"$ES_VOL/work"}
+ES_CLUSTER=${ES_CLUSTER:-"es_cluster01"}
+ES_PORT=${ES_PORT:-"9200"}
+
+KV_TYPE=${KV_TYPE:-etcd}
+KV_HOST=${KV_HOST:-172.17.8.101}
+KV_PORT=${KV_PORT:-4001}
+KV_URL=${KV_HOST}:${KV_PORT}
+
+echo "[elasticsearch] booting container. KV store: $KV_TYPE"
+
+if [ "$KV_TYPE" == "etcd" ]; then
+  # Etcd as KV store
+  curl -X PUT -d "$ES_CLUSTER" http://${KV_URL}/v2/keys/es/cluster
+  #curl -X PUT -d "$ES_PORT" http://${KV_URL}/v2/keys/es/host
+else
+  # Assume it's consul KV otherwise
+  curl -X PUT -d "$ES_CLUSTER" http://${KV_URL}/v1/kv/es/cluster
+  #curl -X PUT -d "$ES_PORT" http://${KV_URL}/v1/kv/es/host?cas=
+
+fi
+#sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 
 # Try to make initial configuration
-confd -onetime -backend env -config-file /etc/confd/conf.d/elasticsearch.yml.toml
-
-# Set varibles as provided
-##[ ! -z ${ES_CLUSTER_NAME} ] && sed -e "s/cluster.name: es_cluster01/cluster.name: ${ES_CLUSTER_NAME}/" -i $ES_CONF
-##[ ! -z ${ES_PORT_9200_TCP_ADDR} ] && sed -e "s/#node.name: ES_PORT_9200_TCP_ADDR/node.name: ${ES_PORT_9200_TCP_ADDR}/" -i $ES_CONF
-[ ! -z ${ES_RECOVER_TIME} ] && sed -e "s/#gateway.recover_after_time: 5m/gateway.recover_after_time: ${ES_RECOVER_TIME}/" -i $ES_CONF
-[ ! -z ${ES_MULTICAST} ] && sed -e "s/#discovery.zen.ping.multicast.enabled: false/discovery.zen.ping.multicast.enabled: ${ES_MULTICAST}/" -i $ES_CONF
-[ ! -z ${ES_UNICAST_HOSTS} ] && sed -e "s/#discovery.zen.ping.unicast.hosts: [\"host1\", \"host2:port\"]/discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}/" -i $ES_CONF
+confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/elasticsearch.yml.toml
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
+#  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
   su -s /bin/bash $ES_USER -c \
     ${ES_HOME}/bin/elasticsearch \
     -Des.default.config=$ES_CONF \
-##    -Des.default.path.logs=$ES_DIR_LOG \
-##    -Des.default.path.data=$ES_DIR_DATA \
-##    -Des.default.path.work=$ES_DIR_WORK \
     "$@"
 fi
 

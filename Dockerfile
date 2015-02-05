@@ -34,6 +34,7 @@ ENV ES_GROUP elasticsearch
 # Install requirements and Elasticsearch
 WORKDIR ${ES_BASE}
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
+#  supervisor \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - \

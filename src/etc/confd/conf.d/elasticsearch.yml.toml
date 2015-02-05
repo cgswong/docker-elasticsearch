@@ -8,7 +8,8 @@ dest = "/esvol/config/elasticsearch.yml"
 
 # The consul keys or directory to watch.  This is where the information to fill in the template will come from.
 keys = [
-    "/es/cluster/name",
+    "/es/host",
+    "/es/cluster",
 ]
 
 # File ownership and mode information
@@ -17,5 +18,5 @@ mode = "0644"
 
 # These are the commands that will be used to check whether the rendered config is
 # valid and to reload the actual service once the new config is in place
-##check_cmd = "/usr/local/bin/elasticsearch.sh check"
-##reload_cmd = "/usr/local/bin/elasticsearch.sh restart"
+##check_cmd = "/usr/bin/supervisorctl elasticsearch check"
+##reload_cmd = "/usr/bin/supervisorctl elasticsearch restart"
