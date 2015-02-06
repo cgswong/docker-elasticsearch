@@ -39,15 +39,16 @@ echo "[elasticsearch] booting container. KV store: $KV_TYPE"
 
 if [ "$KV_TYPE" == "etcd" ]; then
   # Etcd as KV store
-  curl -L http://${KV_URL}/v2/keys/es/cluster -XPUT -d value=$ES_CLUSTER
+  curl -L http://${KV_URL}/v2/keys/services/logging/es/cluster -XPUT -d value=$ES_CLUSTER
 else
   # Assume it's consul KV otherwise
-  curl -L http://${KV_URL}/v1/kv/es/cluster -XPUT -d value=$ES_CLUSTER
+  curl -L http://${KV_URL}/v1/kv/services/logging/es/cluster -XPUT -d value=$ES_CLUSTER
 fi
 #sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 
 # Try to make initial configuration
 confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/elasticsearch.yml.toml
+cat ${ES_CONF} > /dev/stderr
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
