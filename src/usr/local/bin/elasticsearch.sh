@@ -52,9 +52,7 @@ confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/el
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
 #  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
-  su -s /bin/bash $ES_USER -c \
-    ${ES_HOME}/bin/elasticsearch \
-    -Des.default.config=$ES_CONF \
+  ${ES_HOME}/bin/elasticsearch -Des.config=$ES_CONF \
     "$@"
 fi
 
