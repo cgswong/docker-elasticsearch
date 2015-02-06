@@ -25,7 +25,8 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
 ENV ES_VERSION 1.4.2
-ENV ES_HOME /opt/elasticsearch
+ENV ES_BASE /opt
+ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_VOL /esvol
 ENV ES_EXEC /usr/local/bin/elasticsearch.sh
 ENV ES_USER elasticsearch
