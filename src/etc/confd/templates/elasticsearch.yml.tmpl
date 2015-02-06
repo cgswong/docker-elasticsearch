@@ -36,8 +36,7 @@ discovery.zen.ping.multicast.enabled: false
 # Configure an initial list of master nodes in the cluster
 # to perform discovery when new nodes (master or data) are started:
 #discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]
-#discovery.zen.ping.unicast.hosts: [{{ range $server := .es_host }} "{{ $server.Value }}", {{ end }}]
-discovery.zen.ping.unicast.hosts: [{{ range $index, $server := .es_host }}{{if $index}}, {{end}}"{{$server.Value}}"{{ end }}]
+discovery.zen.ping.unicast.hosts: [{{ range getvs "/es/host/*" }} "{{.}}",{{ end }}]
 
 # Elasticsearch performs poorly when JVM starts swapping so ensure that
 # it _never_ swaps.

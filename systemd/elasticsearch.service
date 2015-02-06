@@ -22,13 +22,15 @@ ExecStartPre=/usr/bin/mkdir -p /es/data
 ExecStartPre=/usr/bin/docker pull cgswong/elasticsearch
 ExecStart=/usr/bin/docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
 #ExecStart=/usr/bin/docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 -e KV_TYPE=consul -e KV_HOST=${COREOS_PUBLIC_IPV4} -e ES_CLUSTER=elk01 cgswong/elasticsearch
-ExecStartPost=/usr/bin/etcdctl set /es/host ${COREOS_PUBLIC_IPV4}
-#ExecStartPost=/usr/bin/curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host
+#ExecStartPost=/usr/bin/etcdctl set /es/host/%H '{"ipv4":${COREOS_PUBLIC_IPV4},"http_port":9200,"cluster_port":9300,"cluster":"elk01"}'
+ExecStartPost=/usr/bin/etcdctl set /es/host/%H "${COREOS_PUBLIC_IPV4}:9200"
+#ExecStartPost=/usr/bin/curl -L http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/%H -XPUT -d value='{"ipv4":${COREOS_PUBLIC_IPV4},"http_port":9200,"cluster_port":9300,"cluster":"elk01"}'
+#ExecStartPost=/usr/bin/curl -L http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/%H -XPUT -d value=${COREOS_PUBLIC_IPV4}
 ExecStop=/usr/bin/docker stop %p
 ExecStop=/usr/bin/docker kill %p
 ExecStop=/usr/bin/docker rm %p
-ExecStopPost=/usr/bin/etcdctl rm /es/host --with-value ${COREOS_PUBLIC_IPV4}
-#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/${COREOS_PUBLIC_IPV4}
+ExecStopPost=/usr/bin/etcdctl rmdir /es/host/%H
+#ExecStopPost=/usr/bin/curl -L http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/es/host/%H -XDELETE
 
 [X-Fleet]
 Conflicts=%p.service

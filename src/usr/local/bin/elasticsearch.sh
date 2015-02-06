@@ -39,13 +39,10 @@ echo "[elasticsearch] booting container. KV store: $KV_TYPE"
 
 if [ "$KV_TYPE" == "etcd" ]; then
   # Etcd as KV store
-  curl -X PUT -d "$ES_CLUSTER" http://${KV_URL}/v2/keys/es/cluster
-  #curl -X PUT -d "$ES_PORT" http://${KV_URL}/v2/keys/es/host
+  curl -L http://${KV_URL}/v2/keys/es/cluster -XPUT -d value=$ES_CLUSTER
 else
   # Assume it's consul KV otherwise
-  curl -X PUT -d "$ES_CLUSTER" http://${KV_URL}/v1/kv/es/cluster
-  #curl -X PUT -d "$ES_PORT" http://${KV_URL}/v1/kv/es/host?cas=
-
+  curl -L http://${KV_URL}/v1/kv/es/cluster -XPUT -d value=$ES_CLUSTER
 fi
 #sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 
