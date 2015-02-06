@@ -48,7 +48,6 @@ fi
 
 # Try to make initial configuration
 confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/elasticsearch.yml.toml
-cat ${ES_CONF} > /dev/stderr
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
