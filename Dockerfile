@@ -18,13 +18,14 @@
 # 2015/01/30 cgwong v1.0.0: Switch to minimal Debian based Java build. Use confd for config management.
 #                           Use specific user.
 # 2015/02/02 cgwong v1.0.1: Corrected syntax issues.
+# 2015/02/12 cgwong v1.1.0: Use ES 1.4.3
 # ################################################################
 
 FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_VERSION 1.4.2
+ENV ES_VERSION 1.4.3
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_VOL /esvol
@@ -39,14 +40,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - \
-  && ln -s elasticsearch-${ES_VERSION} elasticsearch \
-  && mkdir -p ${ES_VOL}/data \
-  && mkdir -p ${ES_VOL}/logs \
-  && mkdir -p ${ES_VOL}/plugins \
-  && mkdir -p ${ES_VOL}/work \
-  && mkdir -p ${ES_VOL}/config \
-  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
-  && chmod +x /usr/local/bin/confd
+  && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
 # Configure environment
 COPY src/ /
@@ -68,5 +62,5 @@ EXPOSE 9200
 EXPOSE 9300
 
 # Start container
-##USER ${ES_USER}
+USER ${ES_USER}
 CMD ["/usr/local/bin/elasticsearch.sh"]

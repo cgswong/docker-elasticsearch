@@ -1,0 +1,23 @@
+[Unit]
+Description=ElasticSearch discovery service
+BindsTo=elasticsearch.service
+
+[Service]
+EnvironmentFile=/etc/environment
+Environment="ES_CLUSTER=es01"
+
+ExecStart=/bin/bash -c '\
+  while true; do \
+    curl -f ${COREOS_PRIVATE_IPV4}:9200; \
+    if [ "$?" = "0" ]; then \
+      etcdctl set /services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} '{"host":"%H","http_port":9200,"cluster_port":9300}' --ttl 60; \
+    else \
+      etcdctl rmdir /services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4}; \
+    fi; \
+    sleep 45; \
+  done'
+
+ExecStop=/usr/bin/etcdctl rmdir /services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4}
+
+[X-Fleet]
+MachineOf=elasticsearch.service
