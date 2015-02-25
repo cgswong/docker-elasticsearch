@@ -19,13 +19,14 @@
 #                           Use specific user.
 # 2015/02/02 cgwong v1.0.1: Corrected syntax issues.
 # 2015/02/12 cgwong v1.1.0: Use ES 1.4.3
+# 2015/02/24 cgwong v1.2.0: Update to ES 1.4.4
 # ################################################################
 
-FROM cgswong/java:oracleJDK8
+FROM cgswong/java:orajdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_VERSION 1.4.3
+ENV ES_VERSION 1.4.4
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_VOL /esvol
