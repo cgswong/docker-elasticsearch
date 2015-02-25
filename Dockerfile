@@ -48,6 +48,7 @@ COPY src/ /
 
 RUN groupadd -r ${ES_GROUP} \
   && useradd -M -r -d ${ES_HOME} -g ${ES_GROUP} -c "Elasticsearch Service User" -s /bin/false ${ES_USER} \
+  && mkdir -p ${ESVOL}/{data,logs,plugins,work}
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} ${ES_EXEC} \
   && chmod +x ${ES_EXEC}
 
