@@ -14,9 +14,9 @@ It is usually the back-end for a Logstash instance with Kibana as the frontend.
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/elasticsearch/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/elasticsearch`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/elasticsearch/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/elasticsearch:v1.4.4`
 
-   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/elasticsearch" github.com/cgswong/docker-elasticsearch`)
+   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/elasticsearch:v1.4.4" github.com/cgswong/docker-elasticsearch`)
 
 
 ### Usage
@@ -33,7 +33,7 @@ mkdir -p /es/data
 docker run --rm --name %p -v /es/data:/esvol/data -p 9200:9200 -p 9300:9300 cgswong/elasticsearch:v1.4.4
 ```
 
-Attaching persistent storage ensures that the data is retained across container restarts (with some obvious caveats). At this time though, given the state of maturity in this space, I would recommend this be done via a data container (hosting an AWS S3 bucket or other externalized, distributed persistent storage) in a production environment.
+Attaching persistent storage ensures that the data is retained across container restarts (with some obvious caveats). At this time though, given the state of maturity in this space, I would recommend this be done via a data container (hosting an AWS S3 bucket or other externalized, distributed persistent storage) in a possible production environment.
 
 ### Using an Elasticsearch Cluster
 Multiple Elasticsearch containers can be launched (or stopped) and the cluster will dynamically resize using the provided systemd unit files.
