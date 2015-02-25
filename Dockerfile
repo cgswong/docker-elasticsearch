@@ -67,5 +67,5 @@ EXPOSE 9200
 EXPOSE 9300
 
 # Start container
-USER ${ES_USER}
+#USER ${ES_USER}
 CMD ["/usr/local/bin/elasticsearch.sh"]
