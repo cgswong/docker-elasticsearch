@@ -41,7 +41,7 @@ ExecStart=/bin/bash -c '\
     cgswong/elasticsearch:v1.4.4 \
     --discovery.zen.ping.unicast.hosts=$UNICAST_HOSTS'
 
-ExecStartPost=/usr/bin/etcdctl set /services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} '{"host":"%H","http_port":9200,"cluster_port":9300}'
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XPUT -d value='{"host":"%H","http_port":9200,"cluster_port":9300}'
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
@@ -49,9 +49,9 @@ ExecStop=-/usr/bin/docker rm %p
 
 ExecStopPost=/usr/bin/bash -c '\
   if [ $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER} | wc -l) -eq 0 ]; then \
-    etcdctl rmdir /services/logging/es/${ES_CLUSTER} ; \
+    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER} -XDELETE ; \
   else \
-    etcdctl rmdir /services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} ; \
+    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XDELETE ; \
   fi'
 
 [X-Fleet]
