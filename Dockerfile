@@ -37,7 +37,6 @@ ENV ES_GROUP elasticsearch
 # Install requirements and Elasticsearch
 WORKDIR ${ES_BASE}
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
-#  supervisor \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - \
@@ -61,10 +60,8 @@ VOLUME ["${ES_VOL}/data", "${ES_VOL}/config", "${ES_VOL}/logs"]
 # Define working directory.
 WORKDIR ${ES_VOL}
 
-# Listen for connections on TCP port 9200
-EXPOSE 9200
-# Listen for cluster connections on TCP port 9300
-EXPOSE 9300
+# Listen for 9200/tcp (HTTP) and 9300/tcp (cluster)
+EXPOSE 9200 9300
 
 # Start container
 #USER ${ES_USER}
