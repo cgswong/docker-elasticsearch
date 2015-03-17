@@ -14,6 +14,7 @@
 # 2015/02/02 cgwong v1.0.1: Simplified directories and variables.
 # 2015/02/12 cgwong v1.1.0: Put cluster value outside this code. Removed unneeded variables.
 # 2015/03/05 cgwong v1.2.0: Download config file function.
+# 2015/03/17 cgwong v1.3.0: Fix download URL, and exit on error.
 # #################################################################
 
 # Fail immediately if anything goes wrong and return the value of the last command to fail/run
@@ -21,18 +22,21 @@ set -eo pipefail
 
 # Set environment
 ES_CLUSTER=${ES_CLUSTER:-"es01"}
-ES_CONF=${ES_CONF:-"/esvol/config/elasticsearch.yml"}
+ES_CFG_FILE=${ES_CFG_FILE:-"/esvol/config/elasticsearch.yml"}
 ES_PORT=${ES_PORT:-"9200"}
 
 # Download the config file if given a URL
-if [ ! "$(ls -A ${ES_CONF})" ]; then
-  curl -Ls -o /esvol/config/elasticsearch.yml ${ES_CONF}
+if [ ! "$(ls -A ${ES_CFG_URL})" ]; then
+  curl -Ls -o ${ES_CFG_FILE} ${ES_CFG_URL}
+  if [ $? -ne 0 ]; then
+    echo "[elasticsearch] Unable to download file ${ES_CFG_URL}."
+    exit 1
 fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   /opt/elasticsearch/bin/elasticsearch \
-    --config=${ES_CONF} \
+    --config=${ES_CFG_FILE} \
     --cluster.name=${ES_CLUSTER} \
     "$@"
 fi
