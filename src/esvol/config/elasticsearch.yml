@@ -26,7 +26,7 @@ path.work: /esvol/work
 #gateway.recover_after_nodes: 1
 # Set the timeout to initiate the recovery process, once the N nodes
 # from previous setting are up (accepts time value):
-gateway.recover_after_time: 5m
+#gateway.recover_after_time: 5m
 # Set how many nodes are expected in this cluster. Once these N nodes
 # are up (and recover_after_nodes is met), begin recovery process immediately
 # (without waiting for recover_after_time to expire):
