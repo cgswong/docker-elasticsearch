@@ -20,13 +20,14 @@
 # 2015/02/02 cgwong v1.0.1: Corrected syntax issues.
 # 2015/02/12 cgwong v1.1.0: Use ES 1.4.3
 # 2015/02/24 cgwong v1.2.0: Update to ES 1.4.4
+# 2015/03/24 cgwong v1.3.0: Update to ES 1.5.1, add plug installations
 # ################################################################
 
 FROM cgswong/java:orajdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_VERSION 1.4.4
+ENV ES_VERSION 1.5.0
 ENV ES_BASE /opt
 ENV ES_HOME ${ES_BASE}/elasticsearch
 ENV ES_VOL /esvol
@@ -42,6 +43,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && curl -s https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - \
   && ln -s elasticsearch-${ES_VERSION} elasticsearch
 
+
 # Configure environment
 COPY src/ /
 
@@ -52,7 +54,11 @@ RUN groupadd -r ${ES_GROUP} \
   && mkdir -p ${ES_VOL}/plugins \
   && mkdir -p ${ES_VOL}/work \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} ${ES_EXEC} \
-  && chmod +x ${ES_EXEC}
+  && chmod +x ${ES_EXEC} \
+  && ${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws --silent --timeout 2m \
+  && ${ES_HOME}/bin/plugin -install lukas-vlcek/bigdesk --silent --timeout 2m \
+  && ${ES_HOME}/bin/plugin -install mobz/elasticsearch-head --silent --timeout 2m
+
 
 # Expose volumes
 VOLUME ["${ES_VOL}/data", "${ES_VOL}/config", "${ES_VOL}/logs"]

@@ -19,7 +19,7 @@ path.work: /esvol/work
 
 # Node names are generated dynamically on startup, so you're relieved
 # from configuring them manually. You can tie this node to a specific name:
-#node.name: ES_NODE
+#node.name: HOSTNAME
 
 # Allow recovery process after N nodes in a cluster are up:
 #gateway.recover_after_nodes: 1

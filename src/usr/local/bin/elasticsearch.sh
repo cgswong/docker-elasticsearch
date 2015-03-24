@@ -30,20 +30,23 @@ ES_DISCOVERY=${ES_DISCOVERY:-"none"}
 # Download the config file if given a URL
 if [ ! "$(ls -A ${ES_CFG_URL})" ]; then
   curl -Ls -o ${ES_CFG_FILE} ${ES_CFG_URL}
-  [ $? -ne 0 ] && echo "[elasticsearch] Unable to download file ${ES_CFG_URL}." && exit 1
+  if [ $? -ne 0 ]; then
+    echo "[elasticsearch] Unable to download file ${ES_CFG_URL}."
+    exit 1
+  fi
 fi
 
 # Setup for AWS discovery, installing plugins silently, waiting 2 minutes to download before failing
 if [ "$ES_DISCOVERY" != "none" && ! -z $AWS_ACCESS_KEY && ! -z $AWS_SECRET_KEY && ! -z $AWS_S3_BUCKET ]; then
-  ${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws --silent --timeout 2m
-  [ $? -ne 0 ] && echo "[elasticsearch] Plugin (AWS) installation failed." && exit 1
-  echo "[elasticsearch] Installed AWS plugin."
+  #${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws --silent --timeout 2m
+  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (AWS) installation failed." && exit 1
+  #echo "[elasticsearch] Installed AWS plugin."
 
   # Don't need these but are useful for monitoring/managing ES via UI
-  ${ES_HOME}/bin/plugin -install lukas-vlcek/bigdesk --silent --timeout 2m
-  [ $? -ne 0 ] && echo "[elasticsearch] Plugin (BigDesk) installation failed."
-  ${ES_HOME}/bin/plugin -install mobz/elasticsearch-head --silent --timeout 2m
-  [ $? -ne 0 ] && echo "[elasticsearch] Plugin (ES HEad) installation failed."
+  #${ES_HOME}/bin/plugin -install lukas-vlcek/bigdesk --silent --timeout 2m
+  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (BigDesk) installation failed."
+  #${ES_HOME}/bin/plugin -install mobz/elasticsearch-head --silent --timeout 2m
+  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (ES HEad) installation failed."
 
   # Update ES config for AWS discovery
   sed -ie "s/#cloud.aws.access_key: AWS_ACCESS_KEY/cloud.aws.access_key: ${AWS_ACCESS_KEY}" $ES_CFG_FILE
@@ -57,6 +60,9 @@ fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
+  sysctl -w vm.max_map_count=262144
+  sysctl -w vm.swappiness=1
+  ulimit -l unlimited
   ${ES_HOME}/bin/elasticsearch \
     --config=${ES_CFG_FILE} \
     --cluster.name=${ES_CLUSTER} \
