@@ -55,7 +55,7 @@ RUN groupadd -r ${ES_GROUP} \
   && mkdir -p ${ES_VOL}/work \
   && chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} ${ES_EXEC} \
   && chmod +x ${ES_EXEC} \
-  && ${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws --silent --timeout 2m \
+  && ${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws/2.5.0 --silent --timeout 2m \
   && ${ES_HOME}/bin/plugin -install lukas-vlcek/bigdesk --silent --timeout 2m \
   && ${ES_HOME}/bin/plugin -install mobz/elasticsearch-head --silent --timeout 2m
 
