@@ -8,13 +8,13 @@ dependencies:
   override:
     - docker info
     - if [ -e ~/docker/image.tar ]; then docker load --input ~/docker/image.tar; fi
-    - docker build -t cgswong/docker-elasticsearch v1.5.0
+    - docker build -t cgswong/docker-elasticsearch .
     - mkdir -p ~/docker; docker save cgswong/docker-elasticsearch > ~/docker/image.tar
 
 test:
   override:
     - docker run -d --publish 9200:9200 --publish 9300:9300 cgswong/docker-elasticsearch; sleep 10
-    - curl -L 'localhost:9200/_cluster/state'
+    - curl -L http://localhost:9200/_cluster/state
 
 deployment:
   hub:
