@@ -21,7 +21,6 @@
 set -eo pipefail
 
 # Set environment
-ES_HOME="/opt/elasticsearch"
 ES_CLUSTER=${ES_CLUSTER:-"es01"}
 ES_CFG_FILE=${ES_CFG_FILE:-"/esvol/config/elasticsearch.yml"}
 ES_PORT=${ES_PORT:-"9200"}
@@ -36,26 +35,15 @@ if [ ! "$(ls -A ${ES_CFG_URL})" ]; then
   fi
 fi
 
-# Setup for AWS discovery, installing plugins silently, waiting 2 minutes to download before failing
+# Setup for AWS discovery
 if [ "$ES_DISCOVERY" != "none" && ! -z $AWS_ACCESS_KEY && ! -z $AWS_SECRET_KEY && ! -z $AWS_S3_BUCKET ]; then
-  #${ES_HOME}/bin/plugin -install elasticsearch/elasticsearch-cloud-aws --silent --timeout 2m
-  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (AWS) installation failed." && exit 1
-  #echo "[elasticsearch] Installed AWS plugin."
-
-  # Don't need these but are useful for monitoring/managing ES via UI
-  #${ES_HOME}/bin/plugin -install lukas-vlcek/bigdesk --silent --timeout 2m
-  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (BigDesk) installation failed."
-  #${ES_HOME}/bin/plugin -install mobz/elasticsearch-head --silent --timeout 2m
-  #[ $? -ne 0 ] && echo "[elasticsearch] Plugin (ES HEad) installation failed."
-
-  # Update ES config for AWS discovery
-  sed -ie "s/#cloud.aws.access_key: AWS_ACCESS_KEY/cloud.aws.access_key: ${AWS_ACCESS_KEY}" $ES_CFG_FILE
-  sed -ie "s/#cloud.aws.secret_key: AWS_SECRET_KEY/cloud.aws.secret_key: ${AWS_SECRET_KEY}" $ES_CFG_FILE
-  sed -ie "s/#cloud.node.auto_attributes: true/cloud.node.auto_attributes: true" $ES_CFG_FILE
-  sed -ie "s/#discovery.type: ec2/discovery.type: ec2" $ES_CFG_FILE
-  sed -ie "s/#gateway.type: s3/gateway.type: s3" $ES_CFG_FILE
-  sed -ie "s/#repositories.s3.bucket: \"AWS_S3_BUCKET\"/repositories.s3.bucket: \"$AWS_S3_BUCKET\"" $ES_CFG_FILE
-  #sed -ie "s/#network.public_host: _ec2_/network.public_host: _ec2_" $ES_CFG_FILE
+  sed -ie "s/#cloud.aws.access_key: AWS_ACCESS_KEY/cloud.aws.access_key: ${AWS_ACCESS_KEY}/g" $ES_CFG_FILE
+  sed -ie "s/#cloud.aws.secret_key: AWS_SECRET_KEY/cloud.aws.secret_key: ${AWS_SECRET_KEY}/g" $ES_CFG_FILE
+  sed -ie "s/#cloud.node.auto_attributes: true/cloud.node.auto_attributes: true/g" $ES_CFG_FILE
+  sed -ie "s/#discovery.type: ec2/discovery.type: ec2/g" $ES_CFG_FILE
+  sed -ie "s/#gateway.type: s3/gateway.type: s3/g" $ES_CFG_FILE
+  sed -ie "s/#repositories.s3.bucket: \"AWS_S3_BUCKET\"/repositories.s3.bucket: \"$AWS_S3_BUCKET\"/g" $ES_CFG_FILE
+  #sed -ie "s/#network.public_host: _ec2_/network.public_host: _ec2_/g" $ES_CFG_FILE
 fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
@@ -63,7 +51,8 @@ if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   sysctl -w vm.max_map_count=262144
   sysctl -w vm.swappiness=1
   ulimit -l unlimited
-  ${ES_HOME}/bin/elasticsearch \
+
+  /opt/elasticsearch/bin/elasticsearch \
     --config=${ES_CFG_FILE} \
     --cluster.name=${ES_CLUSTER} \
     "$@"

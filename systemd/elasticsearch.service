@@ -10,7 +10,9 @@ After=docker.service
 After=fleet.service
 
 [Service]
-TimeoutStartSec=0
+TimeoutStartSec=10m
+Restart=on-failure
+RestartSec=5s
 
 # Set environmental variables
 EnvironmentFile=/etc/environment
@@ -25,7 +27,7 @@ ExecStartPre=/usr/bin/docker pull cgswong/elasticsearch
 
 ExecStart=/bin/bash -c '\
   curl -f ${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}; \
-  if [ "$?" = "0" ]; then \
+  if [ $? -eq 0 ]; then \
       UNICAST_HOSTS=$(for key in $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER}); do \
         ip=$(echo $key | sed "s/\/services\/logging\/es\/${ES_CLUSTER}\///g") ; \
         port=$(etcdctl get $key | awk -v RS=\',"\' -F: \'/^cluster_port/ {print $2}\' | sed "s/}//g") ; \
@@ -40,7 +42,6 @@ ExecStart=/bin/bash -c '\
     --publish 9200:9200 \
     --publish 9300:9300 \
     --env ES_CLUSTER=${ES_CLUSTER} \
-    --volume /es/data:/esvol/data \
     cgswong/elasticsearch \
     --node.name=%H \
     --network.publish_host=${COREOS_PRIVATE_IPV4} \
