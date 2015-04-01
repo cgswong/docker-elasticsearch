@@ -36,7 +36,7 @@ if [ ! "$(ls -A ${ES_CFG_URL})" ]; then
 fi
 
 # Setup for AWS discovery
-if [ "$ES_DISCOVERY" != "none" && ! -z $AWS_ACCESS_KEY && ! -z $AWS_SECRET_KEY && ! -z $AWS_S3_BUCKET ]; then
+if [[ "$ES_DISCOVERY" != "none" && ! -z $AWS_ACCESS_KEY && ! -z $AWS_SECRET_KEY && ! -z $AWS_S3_BUCKET ]]; then
   sed -ie "s/#cloud.aws.access_key: AWS_ACCESS_KEY/cloud.aws.access_key: ${AWS_ACCESS_KEY}/g" $ES_CFG_FILE
   sed -ie "s/#cloud.aws.secret_key: AWS_SECRET_KEY/cloud.aws.secret_key: ${AWS_SECRET_KEY}/g" $ES_CFG_FILE
   sed -ie "s/#cloud.node.auto_attributes: true/cloud.node.auto_attributes: true/g" $ES_CFG_FILE
@@ -48,10 +48,6 @@ fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  sysctl -w vm.max_map_count=262144
-  sysctl -w vm.swappiness=1
-  ulimit -l unlimited
-
   /opt/elasticsearch/bin/elasticsearch \
     --config=${ES_CFG_FILE} \
     --cluster.name=${ES_CLUSTER} \
