@@ -30,7 +30,7 @@ ExecStartPre=/usr/bin/docker pull monsantoco/elasticsearch
 ExecStart=/bin/bash -c '\
   curl -f ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}; \
   if [ $? -eq 0 ]; then \
-      UNICAST_HOSTS=$(for key in $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER}); do \
+      UNICAST_HOSTS=$(for key in $(curl -L ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER/host?recurse=true}); do \
         ip=$(echo $key | sed "s/\/services\/logging\/es\/${ES_CLUSTER}\///g") ; \
         port=$(etcdctl get $key | awk -v RS=\',"\' -F: \'/^cluster_port/ {print $2}\' | sed "s/}//g") ; \
         echo "$ip:$port" ; \
@@ -41,8 +41,7 @@ ExecStart=/bin/bash -c '\
   fi; \
   /usr/bin/docker run \
     --name %p \
-    --publish 9200:9200 \
-    --publish 9300:9300 \
+    -P \
     --env ES_CLUSTER=${ES_CLUSTER} \
     monsantoco/elasticsearch \
     --node.name=%H \
@@ -50,15 +49,19 @@ ExecStart=/bin/bash -c '\
     --discovery.zen.ping.multicast.enabled=false \
     --discovery.zen.ping.unicast.hosts=$UNICAST_HOSTS'
 
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/host/${COREOS_PRIVATE_IPV4} -XPUT -d '{"host":"%H","http_port":9200,"cluster_port":9300},"cluster_name":"$ES_CLUSTER"}'
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/host/${COREOS_PRIVATE_IPV4} -XPUT -d \'{"host":"%H","http_port":$(docker port %p | grep 9200 | cut -d: -f2),"cluster_port":$(docker port %p | grep 9300 | cut -d: -f2)}\'
 ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/cluster -XPUT -d "${ES_CLUSTER}"
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 ExecStop=-/usr/bin/docker rm %p
 
-ExecStopPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/cluster -XDELETE
-ExecStopPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/host/${COREOS_PRIVATE_IPV4} -XDELETE
+ExecStopPost=/usr/bin/bash -c '\
+  if [ $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER} | wc -l) -le 2 ]; then \
+    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}?recursive=true -XDELETE ; \
+  else \
+    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XDELETE ; \
+  fi'
 
 [X-Fleet]
 Conflicts=%p.service
