@@ -5,7 +5,7 @@ Description=Elasticsearch
 Requires=docker.service
 Requires=etcd.service
 Requires=fleet.service
-Wants=elasticsearch-dv@%i.service
+Requires=elasticsearch-dv@%i.service
 Wants=elasticsearch-discovery@%i.service
 
 # Dependency ordering and binding
@@ -14,6 +14,7 @@ After=docker.service
 After=etcd.service
 After=fleet.service
 After=elasticsearch-dv@%i.service
+BindsTo=elasticsearch-dv@%i.service
 
 [Service]
 TimeoutStartSec=10m
@@ -53,17 +54,17 @@ ExecStart=/bin/bash -c '\
     --discovery.zen.ping.multicast.enabled=false \
     --discovery.zen.ping.unicast.hosts=$UNICAST_HOSTS'
 
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XPUT -d value='{"host":"%H","http_port":$(docker port %p | grep 9200 | cut -d: -f2),"cluster_port":$(docker port %p | grep 9300 | cut -d: -f2)}'
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/host/${COREOS_PRIVATE_IPV4} -XPUT -d value='{"host":"%H","http_port":$(docker port %p | grep 9200 | cut -d: -f2),"cluster_port":$(docker port %p | grep 9300 | cut -d: -f2)}'
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 ExecStop=-/usr/bin/docker rm %p
 
 ExecStopPost=/usr/bin/bash -c '\
-  if [ $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER} | wc -l) -le 2 ]; then \
-    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}?recursive=true -XDELETE ; \
+  if [ $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER}/host | wc -l) -le 2 ]; then \
+    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/host?recursive=true -XDELETE ; \
   else \
-    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XDELETE ; \
+    curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/es/${ES_CLUSTER}/host/${COREOS_PRIVATE_IPV4} -XDELETE ; \
   fi'
 
 [Install]
@@ -71,3 +72,4 @@ WantedBy=multi-user.target
 
 [X-Fleet]
 Conflicts=%p@*.service
+MachineOf=elasticsearch-dv@%i.service
