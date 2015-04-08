@@ -5,11 +5,16 @@ Description=Elasticsearch
 Requires=docker.service
 Requires=fleet.service
 Requires=consul.service
+Requires=elasticsearch-dv@%i.service
+Wants=elasticsearch-discovery@%i.service
 
 # Dependency ordering and binding
+Before=elasticsearch-discovery@%i.service
 After=docker.service
 After=fleet.service
 After=consul.service
+After=elasticsearch-dv@%i.service
+BindsTo=elasticsearch-dv@%i.service
 
 [Service]
 TimeoutStartSec=10m
@@ -25,43 +30,46 @@ LimitMEMLOCK=infinity
 
 ExecStartPre=-/usr/bin/docker kill %p
 ExecStartPre=-/usr/bin/docker rm %p
-ExecStartPre=/usr/bin/docker pull monsantoco/elasticsearch
+ExecStartPre=/usr/bin/docker pull cgswong/elasticsearch
 
 ExecStart=/bin/bash -c '\
-  curl -f ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}; \
+  curl -fsL ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host?keys > /dev/null ;\
   if [ $? -eq 0 ]; then \
-      UNICAST_HOSTS=$(for key in $(curl -L ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER/host?recurse=true}); do \
-        ip=$(echo $key | sed "s/\/services\/logging\/es\/${ES_CLUSTER}\///g") ; \
-        port=$(etcdctl get $key | awk -v RS=\',"\' -F: \'/^cluster_port/ {print $2}\' | sed "s/}//g") ; \
-        echo "$ip:$port" ; \
+      UNICAST_HOSTS=$(for key in $(curl -Ls ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host?keys | sed -e "s|services\/logging\/es\/${ES_CLUSTER}\/host\/||g" -e "s|\"||g" -e "s|\[||g" -e "s|\]||g" -e "s|,|\n|g"); do \
+        ip=$key ;\
+        port=$(curl -Ls ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host/$key?raw | awk -v RS=\',\' -F: \'/cluster_port/ {print $2}\' | sed -e "s|}||g") ;\
+        echo "$ip:$port" ;\
       done \
-      | paste -s -d","); \
+      | paste -s -d",") ;\
   else \
-      UNICAST_HOSTS=""; \
-  fi; \
+      UNICAST_HOSTS="" ;\
+  fi ;\
   /usr/bin/docker run \
     --name %p \
     -P \
     --env ES_CLUSTER=${ES_CLUSTER} \
-    monsantoco/elasticsearch \
+    cgswong/elasticsearch \
     --node.name=%H \
     --network.publish_host=${COREOS_PRIVATE_IPV4} \
     --discovery.zen.ping.multicast.enabled=false \
     --discovery.zen.ping.unicast.hosts=$UNICAST_HOSTS'
 
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/host/${COREOS_PRIVATE_IPV4} -XPUT -d \'{"host":"%H","http_port":$(docker port %p | grep 9200 | cut -d: -f2),"cluster_port":$(docker port %p | grep 9300 | cut -d: -f2)}\'
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/cluster -XPUT -d "${ES_CLUSTER}"
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLSUTER}/host/${COREOS_PRIVATE_IPV4} -XPUT -d \'{"host":"%H","http_port":$(docker port %p | grep 9200 | cut -d: -f2),"cluster_port":$(docker port %p | grep 9300 | cut -d: -f2)}\'
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 ExecStop=-/usr/bin/docker rm %p
 
 ExecStopPost=/usr/bin/bash -c '\
-  if [ $(etcdctl ls --recursive /services/logging/es/${ES_CLUSTER} | wc -l) -le 2 ]; then \
-    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}?recursive=true -XDELETE ; \
+  if [ $(curl -Ls ${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host?keys | sed -e "s|services\/logging\/es\/${ES_CLUSTER}\/host\/||g" -e "s|\"||g" -e "s|\[||g" -e "s|\]||g" -e "s|,|\n|g" | wc -l) -lt 1 ]; then \
+    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host?recurse -XDELETE ; \
   else \
-    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/${COREOS_PRIVATE_IPV4} -XDELETE ; \
+    curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/es/${ES_CLUSTER}/host/${COREOS_PRIVATE_IPV4} -XDELETE ; \
   fi'
+
+[Install]
+WantedBy=multi-user.target
 
 [X-Fleet]
 Conflicts=%p.service
+MachineOf=elasticsearch-dv@%i.service
