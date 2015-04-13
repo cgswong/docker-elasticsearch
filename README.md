@@ -1,4 +1,7 @@
 ## ElasticSearch Dockerfile
+
+[![Circle CI](https://circleci.com/gh/cgswong/docker-elasticsearch/tree/v1.5.0.svg?style=svg)](https://circleci.com/gh/cgswong/docker-elasticsearch/tree/v1.5.0)
+
 This is a highly configurable [ElasticSearch](https://www.elastic.co/products/elasticsearch) (v1.5.0) [Docker image](https://www.docker.com) built using [Docker's automated build](https://registry.hub.docker.com/u/cgswong/elasticsearch/) process published to the public [Docker Hub Registry](https://registry.hub.docker.com/). It has optional AWS EC2 discovery.
 
 It is usually the back-end for a [Logstash](https://www.elastic.co/products/logstash) instance with [Kibana](https://www.elastic.co/products/kibana) as the frontend forming what is commonly referred to as an **ELK stack**.
