@@ -1,0 +1,2 @@
+export RELEASE="v1.5.2"
+export TAGS="cgswong/elasticsearch:1.5.2 cgswong/elasticsearch:latest"
