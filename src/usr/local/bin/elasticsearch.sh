@@ -24,12 +24,13 @@ ES_CFG_URL=${ES_CFG_FILE}
 
 # Process environment variables
 for VAR in `env`; do
-  if [[ "$VAR" == ^ES_* && ! "$VAR" == ^ES_CFG_FILE && ! "$VAR" == ^ES_CFG_URL ]]; then
+  if [[ "$VAR" =~ ^ES_ && ! "$VAR" =~ ^ES_CFG_FILE && ! "$VAR" =~ ^ES_CFG_URL ]]; then
     ES_CONFIG_VAR=$(echo "$VAR" | sed -r "s/ES_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr _ . | sed  -r "s/\.\./_/g")
     ES_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
 
     if egrep -q "(^|^#)$ES_CONFIG_VAR" $ES_CFG_FILE; then
-      sed -r -i "s\\(^|^#)$ES_CONFIG_VAR: .*$\\$ES_CONFIG_VAR: ${!ES_ENV_VAR}\\g" $ES_CFG_FILE
+      # No config values may contain an '@' char. Below is due to bug otherwise seen.
+      sed -r -i "s@(^|^#)($ES_CONFIG_VAR): (.*)@\2: ${!ES_ENV_VAR}@g" $ES_CFG_FILE
     else
       echo "$ES_CONFIG_VAR: ${!ES_ENV_VAR}" >> $ES_CFG_FILE
     fi
