@@ -35,7 +35,7 @@ RUN apk --update add \
     curl --silent --insecure --location --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/jdk-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz | tar zxf - -C $JAVA_BASE &&\
     ln -s $JAVA_BASE/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
     curl --silent --insecure --location https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz | tar zxf - -C /opt &&\
-    ln -s elasticsearch-${ES_VERSION} ${ES_HOME} &&\
+    ln -s /opt/elasticsearch-${ES_VERSION} ${ES_HOME} &&\
     addgroup ${ES_GROUP} &&\
     adduser -h ${ES_HOME} -D -s /bin/bash -G ${ES_GROUP} ${ES_USER} &&\
     chown -R ${ES_USER}:${ES_GROUP} ${ES_HOME}/ ${ES_VOL} &&\
