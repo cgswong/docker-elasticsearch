@@ -6,7 +6,7 @@ FROM alpine:latest
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV ES_VERSION %%VERSION%%
+ENV ES_VERSION 1.5.0
 ENV ES_HOME /opt/elasticsearch
 ENV ES_VOL /var/lib/elasticsearch
 ENV ES_USER elasticsearch
