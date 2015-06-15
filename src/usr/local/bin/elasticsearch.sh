@@ -29,9 +29,9 @@ for VAR in `env`; do
     ES_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
 
     if egrep -q "(^|^#)$ES_CONFIG_VAR" $ES_CFG_FILE; then
-      sed -r -i "s\\(^|^#)$ES_CONFIG_VAR=.*$\\$ES_CONFIG_VAR=${!ES_ENV_VAR}\\g" $ES_CFG_FILE
+      sed -r -i "s\\(^|^#)$ES_CONFIG_VAR: .*$\\$ES_CONFIG_VAR: ${!ES_ENV_VAR}\\g" $ES_CFG_FILE
     else
-      echo "$ES_CONFIG_VAR=${!ES_ENV_VAR}" >> $ES_CFG_FILE
+      echo "$ES_CONFIG_VAR: ${!ES_ENV_VAR}" >> $ES_CFG_FILE
     fi
   fi
 done
