@@ -24,7 +24,7 @@ ES_CFG_URL=${ES_CFG_FILE}
 
 # Process environment variables
 for VAR in `env`; do
-  if [[ "$VAR" =~ ^ES_ && ! "$VAR" =~ ^ES_CFG_FILE && ! "$VAR" =~ ^ES_CFG_URL ]]; then
+  if [[ "$VAR" =~ ^ES_ && ! "$VAR" =~ ^ES_CFG_ && ! "$VAR" =~ ^ES_HOME && ! "$VAR" =~ ^ES_VERSION && ! "$VAR" =~ ^ES_VOL && ! "$VAR" =~ ^ES_USER && ! "$VAR" =~ ^ES_GROUP ]]; then
     ES_CONFIG_VAR=$(echo "$VAR" | sed -r "s/ES_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr _ . | sed  -r "s/\.\./_/g")
     ES_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
 
