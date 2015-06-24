@@ -38,7 +38,7 @@ for VAR in `env`; do
 done
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
-if [[ "$1" == "--"* || -z $1 ]]; then
+if [[ "$1" == "-"* || -z $1 ]]; then
   /opt/elasticsearch/bin/elasticsearch --config=${ES_CFG_FILE} "$@"
 else
   exec "$@"
