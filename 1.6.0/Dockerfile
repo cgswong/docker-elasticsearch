@@ -25,7 +25,7 @@ RUN apk --update add \
       python \
       py-pip \
       bash && \
-    curl --silent --insecure --location --ouput /tmp/glibc-2.21-r2.apk "${PKG_URL}/glibc-2.21-r2.apk" &&\
+    curl --silent --insecure --location --output /tmp/glibc-2.21-r2.apk "${PKG_URL}/glibc-2.21-r2.apk" &&\
     curl --silent --insecure --location --output /tmp/glibc-bin-2.21-r2.apk "${PKG_URL}/glibc-bin-2.21-r2.apk" &&\
     apk add --allow-untrusted \
       /tmp/glibc-2.21-r2.apk \
