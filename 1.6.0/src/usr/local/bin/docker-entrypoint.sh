@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
-# #################################################################
-# DESC: Elasticsearch startup file.
-# #################################################################
+# Elasticsearch startup file.
+
+# Setup shutdown handlers
+pid=0
+trap 'shutdown_handler' SIGTERM SIGINT
 
 # Fail immediately if anything goes wrong and return the value of the last command to fail/run
 set -eo pipefail
@@ -12,9 +14,9 @@ ES_CFG_FILE="/var/lib/elasticsearch/config/elasticsearch.yml"
 
 # Download the config file if given a URL
 if [ ! -z ${ES_CFG_URL} ]; then
-  curl --location --silent --insecure --output ${ES_CFG_FILE} ${ES_CFG_URL}
+  curl -sSL --output ${ES_CFG_FILE} ${ES_CFG_URL}
   if [ $? -ne 0 ]; then
-    echo "[ES] Unable to download file ${ES_CFG_URL}."
+    echo "$(date +"[%F %X,000]")[WARN ][action.admin.container   ] Unable to download file: ${ES_CFG_URL}"
     exit 1
   fi
 fi
@@ -24,7 +26,7 @@ ES_CFG_URL=${ES_CFG_FILE}
 
 # Process environment variables
 for VAR in `env`; do
-  if [[ "$VAR" =~ ^ES_ && ! "$VAR" =~ ^ES_CFG_ && ! "$VAR" =~ ^ES_HOME && ! "$VAR" =~ ^ES_VERSION && ! "$VAR" =~ ^ES_VOL && ! "$VAR" =~ ^ES_USER && ! "$VAR" =~ ^ES_GROUP ]]; then
+  if [[ "$VAR" =~ ^ES_ && ! "$VAR" =~ ^ES_CFG_ && ! "$VAR" =~ ^ES_PLUGIN_ && ! "$VAR" =~ ^ES_HOME && ! "$VAR" =~ ^ES_VERSION && ! "$VAR" =~ ^ES_VOL && ! "$VAR" =~ ^ES_USER && ! "$VAR" =~ ^ES_GROUP ]]; then
     ES_CONFIG_VAR=$(echo "$VAR" | sed -r "s/ES_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr _ . | sed  -r "s/\.\./_/g")
     ES_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
 
@@ -37,9 +39,22 @@ for VAR in `env`; do
   fi
 done
 
+shutdown_handler() {
+  # Handle Docker shutdown signals to allow correct exit codes upon container shutdown
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.shutdown   ] Requesting container shutdown"
+  kill -SIGINT "$pid"
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.shutdown   ] Container stopped"
+  exit 0
+}
+
 # if `docker run` first argument start with `--` the user is passing launcher arguments
-if [[ "$1" == "-"* || -z $1 ]]; then
-  /opt/elasticsearch/bin/elasticsearch --config=${ES_CFG_FILE} "$@"
+if [[ "$1" == "--"* || -z $1 ]]; then
+  exec /opt/elasticsearch/bin/elasticsearch --config=${ES_CFG_FILE} "$@" &
+  pid=$!
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.startup    ] Started with PID: ${pid}"
+  wait ${pid}
+  trap - SIGTERM SIGINT
+  wait ${pid}
 else
   exec "$@"
 fi
